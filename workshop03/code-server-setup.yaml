@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-server
+  namespace: codeserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: code-server
+    spec:
+      containers:
+        - name: code-server
+          image: linuxserver/code-server:amd64-latest  # Use the latest image or a specific version
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+          ports:
+            - containerPort: 8443
+          envFrom:
+            - secretRef:
+                name: code-server-secret   # Reference to the Secret
+            - configMapRef:
+                name: code-server-config  # Reference to the ConfigMap
+          volumeMounts:
+            - mountPath: /config/workspace
+              name: workspace-vol
+      volumes:
+        - name: workspace-vol
+          persistentVolumeClaim:
+            claimName: workspace-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: workspace-pvc
+  namespace: codeserver
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Adjust storage size as needed
+  storageClassName: do-block-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-server-svc
+  namespace: codeserver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8443
+  selector:
+    app: code-server
+
+
