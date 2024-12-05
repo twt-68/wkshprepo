@@ -17,6 +17,11 @@ spec:
       containers:
       - name: bgg-database
         image: stackupiss/bgg-database:v1
+        envFrom:
+        - configMapRef:
+            name: bgg-db-config
+        - secretRef:
+            name: bgg-db-secret
         ports:
         - containerPort: 3306
 

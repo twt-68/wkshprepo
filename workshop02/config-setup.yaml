@@ -22,4 +22,4 @@ metadata:
   namespace: bggns
 type: Opaque
 data:
-  BGG_DB_PASSWORD: Y2hhbmdlaxQ=  # "changeit" in base64 encoding
+  BGG_DB_PASSWORD: Y2hhbmdlaXQ=  # "changeit" in base64 encoding
